@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Request, Response } from 'express';
 import bodyParser from 'body-parser';
 import {filterImageFromURL, deleteLocalFiles} from './util/util';
 
@@ -30,6 +30,21 @@ import {filterImageFromURL, deleteLocalFiles} from './util/util';
   /**************************************************************************** */
 
   //! END @TODO1
+
+  app.get( "/filteredimage", async (req: Request, res: Response) => {
+    const  imageUrl   = req.query.image_url
+    if (!imageUrl) {
+      return res.status(400).send('Image Url is required')
+    }
+    try {
+      const path = await filterImageFromURL(imageUrl)
+      const callBack = () => { deleteLocalFiles([path])}
+      res.sendFile(path, callBack)
+    }
+    catch (error) {
+      res.status(400).send('The Image URL is not available. Please find another one')
+    }
+  })
   
   // Root Endpoint
   // Displays a simple message to the user
